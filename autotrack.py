@@ -12,9 +12,11 @@ quiet_period = datetime.timedelta(minutes=quiet_mins)
 
 
 def _run(*args):
-    output = subprocess.Popen(args,
+    output, stderr = subprocess.Popen(args,
         stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,).communicate()[0]
+        stderr=subprocess.PIPE).communicate()
+    if "fatal" in repr(stderr):
+        sys.exit("error: %r failed: %r" % (" ".join(args), stderr))
     return output
 
 
