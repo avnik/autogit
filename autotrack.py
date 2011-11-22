@@ -28,6 +28,9 @@ def _check_time(filename):
     pending_mod += quiet_period
     return pending_mod < now
 
+if len(sys.argv) > 1:
+    os.chdir(sys.argv[1])
+
 status = _run("git", "status", "-uall", "--porcelain")
 add_list = []
 commit_list = []
