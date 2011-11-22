@@ -2,6 +2,7 @@
 import subprocess
 import datetime
 import os
+import sys
 
 quiet_mins = 5
 
@@ -36,7 +37,7 @@ for each in status.splitlines():
         elif st == " M" or st == "A " or st == " D":
             commit_list.append(filename)
         else:
-            print "Unknown status " + st + "  for file " + filename
+            sys.stderr.write("Unknown status %s for filename %s\n" % (st, filename))
 
 if(add_list):
     _run("git", "add", *add_list)
