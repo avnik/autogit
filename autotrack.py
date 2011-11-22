@@ -28,15 +28,15 @@ status = _run("git", "status", "-uall", "--porcelain")
 add_list = []
 commit_list = []
 for each in status.splitlines():
-    x, y, filename = each[0], each[1], each[3:]
+    st, filename = each[:2], each[3:]
     ready = _check_time(filename)
     if ready:
-        if x + y == "??":
+        if st == "??":
             add_list.append(filename)
-        elif x + y == " M" or x + y == "A " or x + y == " D":
+        elif st == " M" or st == "A " or st == " D":
             commit_list.append(filename)
         else:
-            print "Unknown status " + x + y + "  for file " + filename
+            print "Unknown status " + st + "  for file " + filename
 
 if(add_list):
     _run("git", "add", *add_list)
