@@ -35,7 +35,7 @@ status = _run("git", "status", "-uall", "--porcelain")
 add_list = []
 commit_list = []
 for each in status.splitlines():
-    st, filename = each[:2], each[3:]
+    st, filename = each[:2].decode(), each[3:]
     ready = _check_time(filename)
     if ready:
         if st == "??":
