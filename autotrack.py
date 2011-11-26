@@ -1,7 +1,9 @@
-#! /usr/bin/python
+#! /usr/bin/env python
+
 import subprocess
 import datetime
 import os
+import sys
 
 quiet_mins = 5
 
@@ -10,9 +12,11 @@ quiet_period = datetime.timedelta(minutes=quiet_mins)
 
 
 def _run(*args):
-    output = subprocess.Popen(args,
+    output, stderr = subprocess.Popen(args,
         stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,).communicate()[0]
+        stderr=subprocess.PIPE).communicate()
+    if "fatal" in repr(stderr):
+        sys.exit("error: %r failed: %r" % (" ".join(args), stderr))
     return output
 
 
@@ -24,19 +28,22 @@ def _check_time(filename):
     pending_mod += quiet_period
     return pending_mod < now
 
+if len(sys.argv) > 1:
+    os.chdir(sys.argv[1])
+
 status = _run("git", "status", "-uall", "--porcelain")
 add_list = []
 commit_list = []
 for each in status.splitlines():
-    x, y, filename = each[0], each[1], each[3:]
+    st, filename = each[:2].decode(), each[3:]
     ready = _check_time(filename)
     if ready:
-        if x + y == "??":
+        if st == "??":
             add_list.append(filename)
-        elif x + y == " M" or x + y == "A " or x + y == " D":
+        elif st == " M" or st == "A " or st == " D":
             commit_list.append(filename)
         else:
-            print "Unknown status " + x + y + "  for file " + filename
+            sys.stderr.write("Unknown status %s for filename %s\n" % (st, filename))
 
 if(add_list):
     _run("git", "add", *add_list)
